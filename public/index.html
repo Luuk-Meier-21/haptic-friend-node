@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <title>Node haptic</title>
+  </head>
+  <body>
+    <main>
+        <div>
+          <h1>Node Haptic</h1>
+          <p>Status: <span id="status">Waiting on first contact</span></p>
+        </div>
+        <div>
+          <!-- <button data-on-ready id="open-button">Open</button> -->
+        </div>
+        <div>
+          <button data-on-ready id="open-button">Open</button>
+          <button data-on-ready id="close-button">Close</button>
+          <button data-on-serial id="on-button">Led On</button>
+          <button data-on-serial id="off-button">Led Off</button>
+          <button data-on-serial id="hold-button">Led Hold</button>
+          <button data-on-serial id="test1-button">Test 2</button>
+          <button data-on-serial id="test2-button">Test 3</button>
+          <button data-on-serial id="test3-button">Test a</button>
+        </div>
+    </main>
+    <script src="p5.js" ></script>
+    <script src="./interaction.js"></script>
+    <script src="./main.js"></script>
+  </body>
+</html>
