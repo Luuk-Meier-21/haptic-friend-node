@@ -10,6 +10,7 @@ const onReady = async (callback = (serialPort, parser) => {}) => {
   try {
     const serialPort = await getSerial();
     const parser = serialPort.pipe(new Readline({ delimiter: '\n' }));
+    // Wait for Arduino to initialize
     setTimeout(() => {
       callback(serialPort, parser);
     }, serialDelay);
@@ -28,13 +29,16 @@ const getSerial = async () => {
   let path = '';
 
   return new Promise((resolve, reject) => {
+    // (from Stackoverflow) gets all active serialports, 
+    // loops tru them looking for port.manufacturer name that contains Arduino
+    // Then returns serialport object of Arduino
     SerialPort.list().then(ports => {
       let done = false
       let count = 0
       let allports = ports.length
       ports.forEach((port) => {
         count = count+1
-        pm  = port.manufacturer
+        pm  = port.manufacture
   
         if (typeof pm !== 'undefined' && pm.includes('arduino')) {
           path = port.path

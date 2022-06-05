@@ -34,6 +34,7 @@ server.listen(port, () => {
 
     sendReadyStatus();
 
+    // Listen for messages from clientside
     ws.on('message', (message) => {
       const open = (code, callback = () => {}) => serialPort.open((err) => sendConnectionStatus(err, code, callback));
       const close = (code) => serialPort.close((err) => sendConnectionStatus(err, code));
