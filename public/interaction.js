@@ -16,7 +16,6 @@ function SocketController(url) {
         })
     }
 
-    //
     this.hold = (id, holdMessage, releaseMessage) => {
         onEvent(id, "mousedown", () => {
             console.log("Sending: "+ holdMessage)

@@ -14,13 +14,13 @@ server.listen(port, () => {
 });
 
 /**
- * Websocket Arduino statuscodes:
- * 100: ready
- * 200: serialport connection open
- * 400: serialport connection closed
- * 410: Error during connection atempt
+ * Statuscodes:
+ *  100: server ready for connection
+ *  200: serialport connection open
+ *  400: serialport connection closed
+ *  410: Error during connection atempt
  */
- arduino.onReady((serialPort, parser) => { // Connection to Arduino via serialport
+ arduino.onReady((sp, parser) => {         // Connection to Arduino via serialport
   ws.on('connection', async (ws) => {      // Connect to Websocket
     const sendConnectionStatus = (err, code, callback = () => {}) => {
       if (err) {
@@ -36,15 +36,14 @@ server.listen(port, () => {
 
     // Listen for messages from clientside
     ws.on('message', (message) => {
-      const open = (code, callback = () => {}) => serialPort.open((err) => sendConnectionStatus(err, code, callback));
-      const close = (code) => serialPort.close((err) => sendConnectionStatus(err, code));
+      const open = (code, callback = () => {}) => sp.open((err) => sendConnectionStatus(err, code, callback));
+      const close = (code) => sp.close((err) => sendConnectionStatus(err, code));
 
       switch (message.toString()) {
         case "OPEN":      open(200);
-        case "OPEN_F":    open(200, open);
         case "CLOSE":     close(400);
-        default:          serialPort.write(message);
-      }
+        default:          sp.write(message);
+      };
     });
 
     parser.on('data', data => {

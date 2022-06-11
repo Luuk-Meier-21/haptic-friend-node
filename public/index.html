@@ -8,23 +8,17 @@
   </head>
   <body>
     <main>
-        <div>
+        <header>
           <h1>Node Haptic</h1>
           <p>Status: <span id="status">Waiting on first contact</span></p>
-        </div>
-        <div>
-          <!-- <button data-on-ready id="open-button">Open</button> -->
-        </div>
-        <div>
+        </header>
+        <section>
           <button data-on-ready id="open-button">Open</button>
           <button data-on-ready id="close-button">Close</button>
-          <button data-on-serial id="on-button">Led On</button>
-          <button data-on-serial id="off-button">Led Off</button>
-          <button data-on-serial id="hold-button">Led Hold</button>
-          <button data-on-serial id="test1-button">Test 2</button>
-          <button data-on-serial id="test2-button">Test 3</button>
-          <button data-on-serial id="test3-button">Test a</button>
-        </div>
+          <button data-on-serial id="on-button">LED On</button>
+          <button data-on-serial id="off-button">LED Off</button>
+          <button data-on-serial id="hold-button">LED Hold</button>
+        </section>
     </main>
     <script src="p5.js" ></script>
     <script src="./interaction.js"></script>
