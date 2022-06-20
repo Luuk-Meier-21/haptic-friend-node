@@ -11,10 +11,15 @@ const onReady = async (callback = (serialPort, parser) => {}) => {
     const serialPort = await getSerial();
     const parser = serialPort.pipe(new ReadlineParser({ delimiter: '\n',  }));
 
+    parser.on("data", (data) => {
+      if (data.toString() === "0") {
+          callback(serialPort, parser);
+      }
+  });
     // Wait for Arduino to initialize
-    setTimeout(() => {
-      callback(serialPort, parser);
-    }, serialDelay);
+    // setTimeout(() => {
+    //   callback(serialPort, parser);
+    // }, serialDelay);
   } catch(error) {
     // No Arduino connected error handeling here:
     console.log(error); 

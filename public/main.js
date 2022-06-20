@@ -15,9 +15,6 @@ socketController.open((s, c) => {
     c.click("on-button", 1);
     c.click("off-button", 0);
     c.hold("hold-button", 1, 0);
-    c.click("test1-button", 2);
-    c.click("test2-button", 3);
-    c.click("test3-button", "a");
 })
 
 function handleStatus(data, notStatusCallback = () => {}) {
@@ -25,13 +22,13 @@ function handleStatus(data, notStatusCallback = () => {}) {
 
     switch (code) {
         case 100:
-            statusElement.innerHTML = "Ready to connect";
+            document.location.reload(true);
             break;
         case 200:
             statusElement.innerHTML = "Connected";
             break;
-        case 400:
-            statusElement.innerHTML = "Not connecting";
+        case 300:
+            statusElement.innerHTML = "Not connected";
             break;
         default: 
             notStatusCallback(data);

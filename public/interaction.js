@@ -45,7 +45,7 @@ function onClick(id, callback) {
  * @param {*} event event to listen for
  * @param {*} callback callback for click events on given element
  */
- function onEvent(id, event, callback) {
+ function onEvent(id, event, callback = () => {}) {
     const element = document.getElementById(id);
 
     element.removeEventListener(event, callback);
