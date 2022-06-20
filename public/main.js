@@ -11,6 +11,7 @@ socketController.open((s, c) => {
     
     c.click("open-button", "OPEN");
     c.click("close-button", "CLOSE");
+    c.click("start-button", "START");
     c.click("on-button", 1);
     c.click("off-button", 0);
     c.hold("hold-button", 1, 0);

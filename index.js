@@ -2,6 +2,7 @@ const WebSocket = require('ws').WebSocket;
 const http = require('http');
 const express = require('express');
 const arduino = require('./utils/arduino');
+const { ActionsController } = require('./utils/game');
 
 // Server setup:
 const app = express();
@@ -31,24 +32,38 @@ server.listen(port, () => {
       }
     };
     const sendReadyStatus = () => ws.send(100);
-
     sendReadyStatus();
 
+    const action = new ActionsController(ws, sp);
+
     // Listen for messages from clientside
-    ws.on('message', (message) => {
+    ws.on('message', message => {
       const open = (code, callback = () => {}) => sp.open((err) => sendConnectionStatus(err, code, callback));
       const close = (code) => sp.close((err) => sendConnectionStatus(err, code));
 
       switch (message.toString()) {
-        case "OPEN":      open(200);
-        case "CLOSE":     close(400);
+        case "OPEN":      open(200) 
+          break;
+        case "CLOSE":     close(400)
+          break;
+        case "START":     action.start();
+          break;
         default:          sp.write(message);
       };
     });
 
-    parser.on('data', data => {
-      console.log(`Arduino send -> ${data}`);
-      ws.send(data);
-    });
+    // Listen for messages from serialport
+    parser.on("data", data => {
+      switch (data.toString()) {
+        case "1":         
+            action.confirm();
+          break;
+        default:          console.log(`Unknown message: (${data.toString()})`)
+      };
+    })  
+
+    // sp.on("data", data => {
+    //   console.log(data)
+    // });
   });
 });

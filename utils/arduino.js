@@ -1,5 +1,5 @@
-const SerialPort = require('serialport').SerialPort
-const Readline = require('@serialport/parser-readline').ReadlineParser;
+const { SerialPort } = require('serialport')
+const { ReadlineParser } = require('@serialport/parser-readline')
 const serialDelay = 2000;
 
 /**
@@ -9,14 +9,15 @@ const serialDelay = 2000;
 const onReady = async (callback = (serialPort, parser) => {}) => {
   try {
     const serialPort = await getSerial();
-    const parser = serialPort.pipe(new Readline({ delimiter: '\n' }));
+    const parser = serialPort.pipe(new ReadlineParser({ delimiter: '\n',  }));
+
     // Wait for Arduino to initialize
     setTimeout(() => {
       callback(serialPort, parser);
     }, serialDelay);
   } catch(error) {
     // No Arduino connected error handeling here:
-    console.log(error);
+    console.log(error); 
   }
 }
 
@@ -37,16 +38,19 @@ const getSerial = async () => {
       let count = 0
       let allports = ports.length
       ports.forEach((port) => {
-        count = count+1
-        pm  = port.manufacture
+        count = count + 1;
+        pm  = port.manufacturer;
   
         if (typeof pm !== 'undefined' && pm.includes('arduino')) {
           path = port.path
           done = true
-          const serialPort = new SerialPort({path: path, baudRate: 115200, lock: false});
+          const serialPort = new SerialPort({
+            path: path, 
+            baudRate: 115200, 
+            lock: false
+          });
           resolve(serialPort);
         }
-  
         if(count === allports && done === false){
           reject("No Arduino connected")
           // throw Error(`can't find any arduino`);
