@@ -19,17 +19,18 @@ server.listen(port, () => {
 });
 
 arduino.onReady((sp, parser) => {
-    // Connection to Arduino via serialport
 
+    // Connection to Arduino via serialport
+    let parserCreated = false;
     const interface = spawn("npm", ["run", "interface"]);
 
     interface.on("spawn", () => {
         open("http://localhost:8080/");
     });
-
+    // TODO: data leak from eventlisteners when refreshing to many times.
+    // On every refresh and connection to the websocket:
     ws.on("connection", async (ws) => {
         const c = new ConnectionHandler(ws, sp);
-        console.log(c.isOpen());
 
         // Listen for messages from clientside
         ws.on("message", (message) => {
@@ -45,10 +46,10 @@ arduino.onReady((sp, parser) => {
                     sp.write(message);
             }
         });
-
-        // Listen for messages from serialport
         parser.on("data", (data) => {
             ws.send(data.toString());
         });
     });
 });
+
+

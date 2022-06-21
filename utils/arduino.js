@@ -16,13 +16,9 @@ const onReady = async (callback = (serialPort, parser) => {}) => {
           callback(serialPort, parser);
       }
   });
-    // Wait for Arduino to initialize
-    // setTimeout(() => {
-    //   callback(serialPort, parser);
-    // }, serialDelay);
   } catch(error) {
-    // No Arduino connected error handeling here:
     console.log(error); 
+    process.exit();
   }
 }
 
