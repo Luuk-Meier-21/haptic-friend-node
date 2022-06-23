@@ -25,7 +25,7 @@ arduino.onReady((sp, parser) => {
     const interface = spawn("npm", ["run", "interface"]);
 
     interface.on("spawn", () => {
-        open("http://localhost:8080/");
+        open("http://localhost:8080/", {});
     });
     // TODO: data leak from eventlisteners when refreshing to many times.
     // On every refresh and connection to the websocket:
