@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
+    "dev": "nodemon -w index.js",
     "interface": "http-server ./public",
     "aPort": "node ./scripts/getArduino.js",
     "build": "npx pkg -t macos . --out-path dist"
@@ -29,5 +30,8 @@
       "node10.24.1-linux-macos"
     ],
     "outputPath": "build"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.18"
   }
 }
