@@ -10,7 +10,7 @@ Het spel was nog simpel, luister een nummer, wanneer deze stopt moet je zo snel 
 Het huidige prototype maakt gebruikt van 2 *Nodes* aangesloten op een *Arduino*.
 
 #### Arduino board
-![board](https://user-images.githubusercontent.com/79259813/201329774-694fd3dc-56e2-4f2d-a3a4-9962fb609ce7.png | 300)
+![board](https://user-images.githubusercontent.com/79259813/201329774-694fd3dc-56e2-4f2d-a3a4-9962fb609ce7.png)
 Layout Arduino board
 
 G. Ground
