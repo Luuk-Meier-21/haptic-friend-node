@@ -1,6 +1,6 @@
 const { statusCodes } = require("./status");
 
-function ConnectionHandler(ws, sp) {
+function ConnectionController(ws, sp) {
     this.ws = ws;
     this.sp = sp;
 
@@ -19,5 +19,5 @@ function ConnectionHandler(ws, sp) {
 }
 
 module.exports = {
-    ConnectionHandler: ConnectionHandler
+    ConnectionController: ConnectionController
 }

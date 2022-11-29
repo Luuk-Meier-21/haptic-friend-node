@@ -52,8 +52,9 @@ const getSerial = async () => {
           });
           resolve(serialPort);
         }
-        if(count === allports && done === false){
+        if(count === allports && done === false) {
           reject("No Arduino connected")
+          exit(0);
           // throw Error(`can't find any arduino`);
         }
       })
