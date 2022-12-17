@@ -1,4 +1,4 @@
-const WebSocket = require("ws").WebSocket;
+const { WebSocket } = require("ws");
 const http = require("http");
 const express = require("express");
 const arduino = require("./utils/arduino");
@@ -9,49 +9,66 @@ const { KeyboardController } = require("./utils/keyboard");
 const app = express(); 
 const port = 3000;
 const server = http.createServer(app);
-const ws = new WebSocket.Server({ server });
-const keyboard = new KeyboardController();
 
 server.listen(port, () => {
   console.log(`Server running on port ${server.address().port}`);
 });
 
+
+const dummyNode = {
+    node: 1,
+    type: "a",
+    character: "y"
+}
+const dummy = [dummyNode];
+
+// Arduino Serial messages:
+// message:     <Type><Value>
+// setter:      S<Node><Type><Char>
+
+const onArduinoConnection = (c,) => {
+
+}
+
+const onArduinoMessage = (data, c, sp, parser) => {
+    console.log(data.toString())
+}
+
+const onWebsocketConnection = (c, sp, parser) => {
+
+}
+
+const onWebsocketMessage = (message, c, sp, parser) => {
+    switch (message.toString()) {
+        case "OPEN":
+            c.openSerial();
+            break;
+        case "CLOSE":
+            c.closeSerial()
+            break;
+        default:
+            sp.write(message);
+    }
+}
+
 arduino.onReady((sp, parser) => {
-    // Connection to Arduino via serialport
-    let parserCreated = false;
-    // BUG: data leak from eventlisteners when refreshing to many times.
-    // On every refresh and connection to the websocket:
-    ws.on("connection", async (ws) => {
+    const ws = new WebSocket.Server({ server });
+    ws.removeAllListeners();
+    ws.on("connection", ws => {
         const c = new ConnectionController(ws, sp);
+        onArduinoConnection(c, sp, parser);
 
-        // Listen for messages from clientside, send to Arduino
-        ws.on("message", (message) => {
-            console.log(`Client: ${message}`);
-            switch (message.toString()) {
-                case "OPEN":
-                    c.openSerial();
-                    break;
-                case "CLOSE":
-                    c.closeSerial()
-                    break;
-                default:
-                    sp.write(message);
-            }
-        });
+        ws.on("message", (message) => 
+            onWebsocketMessage(message, c, sp, parser)
+        );
 
-        // Recieve messages from arduino:
-        parser.on("data", (data) => {
-            console.log("Serial: " + data.toString())
-
-            const input = data.toString().match(/^[a-zA-Z][0-9]/g);
-            if(!input) return;
-
-            const key = keyboard.mapping.find((key) => key.point == input );
-            if (!key) return;
-
-            keyboard.write(key.keystroke);
-        });
+        parser.removeAllListeners();
+        parser.on("data", (data) => 
+            onArduinoMessage(data, c, sp, parser)
+        );
     });
 });
+
+
 
 
