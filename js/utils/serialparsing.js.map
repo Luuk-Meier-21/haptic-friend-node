@@ -1,0 +1,1 @@
+{"version":3,"file":"serialparsing.js","sourceRoot":"","sources":["../../src/utils/serialparsing.js"],"names":[],"mappings":";;AAAA,MAAM,kBAAkB,GAAG,IAAI,CAAC,EAAE,CAAC,IAAI,CAAC,QAAQ,EAAE,CAAC,KAAK,CAAC,iBAAiB,CAAC,CAAC;AAE5E,MAAM,CAAC,OAAO,GAAG;IACb,kBAAkB,EAAE,kBAAkB;CACzC,CAAA"}

@@ -1,15 +1,16 @@
 {
-  "name": "node-haptic",
+  "name": "haptic-middleware",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "js/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon -w index.js",
-    "interface": "http-server ./public",
-    "aPort": "node ./scripts/getArduino.js",
-    "build": "npx pkg -t macos . --out-path dist"
+    "start": "node js/index.js",
+    "start:watch": "nodemon -w js/index.js",
+    "build": "tsc -p tsconfig.json",
+    "build:watch": "tsc -w -p tsconfig.json",
+    "compile": "npx pkg -t macos . --out-path dist",
+    "dev": "concurrently --names \"build,start\" -c \"blue,yellow\" --kill-others \"npm run build:watch\" \"npm run start:watch\""
   },
   "author": "",
   "license": "ISC",
@@ -20,7 +21,7 @@
     "serialport": "^10.4.0",
     "ws": "^8.6.0"
   },
-  "bin": "./index.js",
+  "bin": "./js/index.js",
   "pkg": {
     "assets": [
       "scripts/**/*",
@@ -32,6 +33,10 @@
     "outputPath": "build"
   },
   "devDependencies": {
-    "nodemon": "^2.0.18"
+    "@types/express": "^4.17.15",
+    "@types/ws": "^8.5.4",
+    "concurrently": "^7.6.0",
+    "nodemon": "^2.0.18",
+    "ts-node": "^10.9.1"
   }
 }

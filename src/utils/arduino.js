@@ -61,7 +61,7 @@ const getSerial = async () => {
             let allports = ports.length;
             ports.forEach((port) => {
                 count = count + 1;
-                pm = port.manufacturer;
+                let pm = port.manufacturer;
 
                 if (typeof pm !== 'undefined' && (pm.includes('arduino') || pm.includes('Arduino'))) {
                     path = port.path
