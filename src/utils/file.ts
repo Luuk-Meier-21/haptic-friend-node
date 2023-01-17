@@ -1,27 +1,28 @@
-const fs = require('fs');
+import fs from "fs";
 
-export function FileController(name: string, relativePath: string = "/") {
-    this.path = require("os").homedir() + relativePath + name + ".json";
+export class FileController {
+    public path: string;
+    private latestData = "";
 
-    let latestData = "";
+    constructor(name: string, relativePath: string = "/") {
+        this.path = require("os").homedir() + relativePath + name;
 
-    const construct = (): void => {
         if(!this.exists()) {
-            this.write("");
+            this.write(this.latestData);
         }
     }
 
-    this.set = (content: string): boolean => {
+    set = (content: string): boolean => {
         if(!this.exists()) return false;
         return this.write(content);
     }
 
-    this.get = (): string => {
+    get = (): string => {
         this.read();
-        return latestData;
+        return this.latestData;
     }
 
-    this.exists = (): boolean => {
+    exists = (): boolean => {
         try {
             return fs.existsSync(this.path);
         } catch(err) {
@@ -30,7 +31,7 @@ export function FileController(name: string, relativePath: string = "/") {
         return false;
     }
 
-    this.write = (content: string): boolean => {
+    write = (content: string): boolean => {
         try {
             fs.writeFileSync(this.path, content);
             return true;
@@ -40,16 +41,14 @@ export function FileController(name: string, relativePath: string = "/") {
         return false;
     }
 
-    this.read = (): boolean => {
+    read = (): boolean => {
         try {
             const data = fs.readFileSync(this.path, 'utf8');
-            latestData = data;
+            this.latestData = data;
             return true;
         } catch (err) {
             console.error(err);
         }
         return false;
     }
-
-    construct();
 }

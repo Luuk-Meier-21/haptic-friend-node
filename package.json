@@ -10,7 +10,9 @@
     "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -w -p tsconfig.json",
     "compile": "npx pkg -t macos . --out-path dist",
-    "dev": "concurrently --names \"build,start\" -c \"blue,yellow\" --kill-others \"npm run build:watch\" \"npm run start:watch\""
+    "dev": "concurrently --names \"build,start\" -c \"blue,yellow\" --kill-others \"npm run build:watch\" \"npm run start:watch\"",
+    "play:watch": "nodemon js/debug/playground.js",
+    "play": "concurrently --names \"build,playground\" -c \"blue,yellow\" --kill-others \"npm run build:watch > NULL\" \"npm run play:watch\""
   },
   "author": "",
   "license": "ISC",

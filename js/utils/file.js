@@ -1,36 +1,38 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FileController = void 0;
-const fs = require('fs');
-function FileController(name, relativePath = "/") {
-    this.path = require("os").homedir() + relativePath + name + ".json";
-    let latestData = "";
-    const construct = () => {
+const tslib_1 = require("tslib");
+const fs_1 = tslib_1.__importDefault(require("fs"));
+class FileController {
+    path;
+    latestData = "";
+    constructor(name, relativePath = "/") {
+        this.path = require("os").homedir() + relativePath + name;
         if (!this.exists()) {
-            this.write("");
+            this.write(this.latestData);
         }
-    };
-    this.set = (content) => {
+    }
+    set = (content) => {
         if (!this.exists())
             return false;
         return this.write(content);
     };
-    this.get = () => {
+    get = () => {
         this.read();
-        return latestData;
+        return this.latestData;
     };
-    this.exists = () => {
+    exists = () => {
         try {
-            return fs.existsSync(this.path);
+            return fs_1.default.existsSync(this.path);
         }
         catch (err) {
             console.error(err);
         }
         return false;
     };
-    this.write = (content) => {
+    write = (content) => {
         try {
-            fs.writeFileSync(this.path, content);
+            fs_1.default.writeFileSync(this.path, content);
             return true;
         }
         catch (err) {
@@ -38,10 +40,10 @@ function FileController(name, relativePath = "/") {
         }
         return false;
     };
-    this.read = () => {
+    read = () => {
         try {
-            const data = fs.readFileSync(this.path, 'utf8');
-            latestData = data;
+            const data = fs_1.default.readFileSync(this.path, 'utf8');
+            this.latestData = data;
             return true;
         }
         catch (err) {
@@ -49,7 +51,6 @@ function FileController(name, relativePath = "/") {
         }
         return false;
     };
-    construct();
 }
 exports.FileController = FileController;
 //# sourceMappingURL=file.js.map
