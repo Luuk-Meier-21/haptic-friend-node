@@ -1,0 +1,12 @@
+
+> haptic-middleware@1.0.0 build:watch
+> tsc -w -p tsconfig.json
+
+c15:20:25 - Starting compilation in watch mode...
+
+
+15:20:26 - Found 0 errors. Watching for file changes.
+c15:29:56 - File change detected. Starting incremental compilation...
+
+
+15:29:56 - Found 0 errors. Watching for file changes.

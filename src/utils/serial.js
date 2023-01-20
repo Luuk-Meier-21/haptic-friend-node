@@ -7,7 +7,7 @@ const serialDelay = 2000;
  * Initializes serialport, waits 2 seconds for Arduino to initialize, then calls callback argument with serialports.
  * 
  */
-const readySerial = async (callback = (serialPort, parser) => { }) => {
+const readySerial = async (callback = (serialPort, parser) => {}) => {
     let handshakeMade = false;
     let hasResponded = false;
 
@@ -17,7 +17,6 @@ const readySerial = async (callback = (serialPort, parser) => { }) => {
     }
 
     const onData = (sp, parser, data) => {
-        console.log(data)
         hasResponded = true;
         const message = parseMessageString(data);
         // Is response a valid handshake:

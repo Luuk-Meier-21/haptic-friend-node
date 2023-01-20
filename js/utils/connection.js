@@ -5,15 +5,16 @@ const tslib_1 = require("tslib");
 const ws_1 = tslib_1.__importDefault(require("ws"));
 const http_1 = tslib_1.__importDefault(require("http"));
 const express_1 = tslib_1.__importDefault(require("express"));
-const serail_1 = require("./serail");
-const nullFunc = () => { };
+const serial_1 = require("./serial");
 class ConnectionController {
     onSerialOpenArray = [];
-    onSerialOpen = nullFunc;
-    onSerialMessage = nullFunc;
-    onWebSocketOpen = nullFunc;
-    onWebSocketMessage = nullFunc;
+    onSerialMessageArray = [];
+    onSerialConfirmationArray = [];
+    onWebSocketOpenArray = [];
+    onWebSocketMessageArray = [];
     serial;
+    serialQueue = [];
+    usingSerialQueue = false;
     webSocketServer;
     webSocket;
     server;
@@ -23,41 +24,46 @@ class ConnectionController {
         this.server = http_1.default.createServer(app);
     }
     start = () => {
-        const callEach = (funcArray, param) => {
-            for (let i = 0; i < funcArray.length; i++) {
-                if (param)
-                    funcArray[i](param);
-                else
-                    funcArray[i]();
-            }
-        };
-        (0, serail_1.readySerial)((serial, parser) => {
+        (0, serial_1.readySerial)((serial, parser) => {
             this.serial = serial;
-            callEach(this.onSerialOpenArray);
-            this.onSerialOpen();
             const server = this.server;
             this.webSocketServer = new ws_1.default.Server({ server });
+            parser.removeAllListeners();
+            parser.on("data", this.onSerialData);
+            this.callEventArray(this.onSerialOpenArray);
             this.webSocketServer.on("connection", (ws) => {
-                this.onWebSocketOpen();
                 this.webSocket = ws;
-                // Flush listeners:
                 this.webSocket.removeAllListeners();
-                parser.removeAllListeners();
-                // WebSocket messages:
-                this.webSocket.on("message", (message) => {
-                    this.onWebSocketMessage(message);
-                });
-                // Serial messages:
-                parser.on("data", (data) => {
-                    this.onSerialMessage(data);
-                });
+                this.webSocket.on("message", this.onWebSocketData);
+                this.callEventArray(this.onWebSocketOpenArray);
             });
         });
-    };
-    listen = () => {
+        // Server websocket connection:
         this.server.listen(this.port, () => {
             console.log(`Server running on port ${this.port}`);
         });
+    };
+    callEventArray = (funcArray, param) => {
+        for (let i = 0; i < funcArray.length; i++) {
+            if (param)
+                funcArray[i](param);
+            else
+                funcArray[i]();
+        }
+    };
+    onSerialData = (message) => {
+        const regex = /(c(i|s|g|f))(?:$|\W)/g;
+        if (message.toString().match(regex)) {
+            // On confirmation message:
+            this.callEventArray(this.onSerialConfirmationArray, message.toString());
+            this.shiftSerialQueue();
+            return;
+        }
+        // On other message:
+        this.callEventArray(this.onSerialMessageArray, message.toString());
+    };
+    onWebSocketData = (message) => {
+        this.callEventArray(this.onWebSocketMessageArray, message.toString());
     };
     sendSerial = (data) => {
         if (this.serial) {
@@ -67,31 +73,80 @@ class ConnectionController {
             throw Error("Function (sendSerial) called before a serialport object was made available.");
         }
     };
+    // Dont use in events called by users.
+    sendSerialArray = (array) => {
+        if (this.usingSerialQueue)
+            throw Error("Previous queue still in use.");
+        this.usingSerialQueue = true;
+        this.serialQueue = array;
+        this.shiftSerialQueue();
+    };
+    shiftSerialQueue = () => {
+        const item = this.serialQueue.shift();
+        if (!item) {
+            this.usingSerialQueue = false;
+            return;
+        }
+        console.log("sending:" + item);
+        this.sendSerial(item);
+    };
     sendSocket = (data) => {
         if (this.webSocket) {
             this.webSocket.send(data);
         }
         else {
-            throw Error("Function (webSocket) called before a webSocket object was made available.");
+            throw Error("Function (sendWebSocket) called before a webSocket object was made available.");
         }
     };
     setSerialListener = (type, listener) => {
         switch (type) {
             case "open":
-                this.onSerialOpen = listener;
+                this.onSerialOpenArray.push(listener);
                 break;
             case "message":
-                this.onSerialMessage = listener;
+                this.onSerialMessageArray.push(listener);
+                break;
+            case "confirmation":
+                this.onSerialConfirmationArray.push(listener);
                 break;
         }
     };
     setWebSocketListener = (type, listener) => {
         switch (type) {
             case "open":
-                this.onWebSocketOpen = listener;
+                this.onWebSocketOpenArray.push(listener);
                 break;
             case "message":
-                this.onWebSocketMessage = listener;
+                this.onWebSocketMessageArray.push(listener);
+                break;
+        }
+    };
+    removeItem = (array, item) => {
+        const index = array.indexOf(item);
+        if (index !== -1) {
+            array.splice(index, 1);
+        }
+    };
+    removeSerialListener = (type, listener) => {
+        switch (type) {
+            case "open":
+                this.removeItem(this.onSerialOpenArray, listener);
+                break;
+            case "message":
+                this.removeItem(this.onSerialMessageArray, listener);
+                break;
+            case "confirmation":
+                this.removeItem(this.onSerialConfirmationArray, listener);
+                break;
+        }
+    };
+    removeWebSocketListener = (type, listener) => {
+        switch (type) {
+            case "open":
+                this.removeItem(this.onWebSocketOpenArray, listener);
+                break;
+            case "message":
+                this.removeItem(this.onWebSocketMessageArray, listener);
                 break;
         }
     };

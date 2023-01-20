@@ -1,11 +1,13 @@
-import { SettingsController } from "../utils/settings";
+// import { SettingsController } from "../utils/settings";
 
-const settings = new SettingsController(".test-hpf");
+// const settings = new SettingsController(".test-hpf");
 
-const data: string[] = [
-    "saaa",
-    "sbab",
-    "scac"
-]
+// const data: string[] = [
+//     "saaa",
+//     "sbab",
+//     "scac"
+// ]
 
-settings.set(data);
+// settings.set(data);
+
+console.log("caag".match(/\bc/g))
