@@ -10,6 +10,7 @@ class ConnectionController {
     onSerialOpenArray = [];
     onSerialMessageArray = [];
     onSerialConfirmationArray = [];
+    onSerialRejectionArray = [];
     onWebSocketOpenArray = [];
     onWebSocketMessageArray = [];
     serial;
@@ -52,10 +53,19 @@ class ConnectionController {
         }
     };
     onSerialData = (message) => {
-        const regex = /(c(i|s|g|f))(?:$|\W)/g;
+        const regex = /((c|r)(i|s|g|f)[a-z]*)/g;
         if (message.toString().match(regex)) {
-            // On confirmation message:
-            this.callEventArray(this.onSerialConfirmationArray, message.toString());
+            const identifier = message.charAt(0);
+            switch (identifier) {
+                case "c":
+                    console.log("Confirm: " + message);
+                    this.callEventArray(this.onSerialConfirmationArray, message.toString());
+                    break;
+                case "r":
+                    console.log("Reject: " + message);
+                    this.callEventArray(this.onSerialRejectionArray, message.toString());
+                    break;
+            }
             this.shiftSerialQueue();
             return;
         }
@@ -109,6 +119,9 @@ class ConnectionController {
             case "confirmation":
                 this.onSerialConfirmationArray.push(listener);
                 break;
+            case "rejection":
+                this.onSerialRejectionArray.push(listener);
+                break;
         }
     };
     setWebSocketListener = (type, listener) => {
@@ -137,6 +150,9 @@ class ConnectionController {
                 break;
             case "confirmation":
                 this.removeItem(this.onSerialConfirmationArray, listener);
+                break;
+            case "rejection":
+                this.removeItem(this.onSerialRejectionArray, listener);
                 break;
         }
     };

@@ -9,13 +9,14 @@ const settings = new settings_1.SettingsController("hpf-settings");
 const connection = new connection_1.ConnectionController();
 connection.setWebSocketListener("message", webSocketMessage);
 connection.setSerialListener("open", serialOpen);
+connection.setSerialListener("confirmation", confirmation);
+connection.setSerialListener("rejection", rejection);
 connection.setSerialListener("message", serialMessage);
 connection.start();
 exports.prefixs = ["i", "s", "g", "f"];
 // WebSocket:
 function webSocketMessage(message) {
-    const prefixPatern = (0, regex_1.regexPrefixPatern)(exports.prefixs);
-    if (message.match(prefixPatern)) {
+    const delegateMessage = (message) => {
         const identifier = message.charAt(0);
         switch (identifier) {
             case "i":
@@ -28,6 +29,10 @@ function webSocketMessage(message) {
                 getter(message);
                 break;
         }
+    };
+    const prefixPatern = (0, regex_1.regexPrefixPatern)(exports.prefixs);
+    if (message.match(prefixPatern)) {
+        delegateMessage(message);
     }
     else {
         // Not a prefixed instruction:
@@ -37,18 +42,26 @@ function instruction(message) {
     connection.sendSerial(message);
 }
 function setter(message) {
-    const hasDuplicate = () => setters.indexOf(message) === -1;
-    const setters = settings.get();
-    if (hasDuplicate()) {
-        const newSetters = settings.add(setters, message);
-        console.log(newSetters);
-        try {
-            connection.sendSerialArray(newSetters);
-        }
-        catch (e) {
-            console.log("Oh NO");
-        }
+    let setters = settings.get();
+    if (setters.indexOf(message) === -1) {
+        setters = settings.add(setters, message);
     }
+    // Always send setters on setter message, else there is a change of node and embedded holding different values;
+    try {
+        connection.sendSerialArray(setters);
+    }
+    catch (e) {
+        console.error("Could not send serial array.");
+        console.error(e);
+    }
+}
+function confirmation(message) {
+    const identifier = message.charAt(1);
+    if (identifier == 's') {
+        const confirmedMessage = message.substring(1, message.length);
+    }
+}
+function rejection(message) {
 }
 // on first setter after init
 function getter(message) {
@@ -60,6 +73,7 @@ function serialMessage(message) {
 }
 function serialOpen(message) {
     const setters = settings.get();
+    // Initial message of available setters:
     connection.sendSerialArray(setters);
 }
 //# sourceMappingURL=index.js.map

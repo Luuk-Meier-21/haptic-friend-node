@@ -9,6 +9,8 @@ const connection = new ConnectionController();
 
 connection.setWebSocketListener("message", webSocketMessage);
 connection.setSerialListener("open", serialOpen);
+connection.setSerialListener("confirmation", confirmation);
+connection.setSerialListener("rejection", rejection);
 connection.setSerialListener("message", serialMessage);
 connection.start();
 
@@ -16,14 +18,18 @@ export const prefixs = ["i", "s", "g", "f"];
 
 // WebSocket:
 function webSocketMessage(message: string) {
-    const prefixPatern = regexPrefixPatern(prefixs);
-    if(message.match(prefixPatern)) {
+    const delegateMessage = (message: string) => {
         const identifier = message.charAt(0);
         switch (identifier) {
             case "i": instruction(message); break;
             case "s": setter(message); break;
             case "g": getter(message); break;
         }
+    }
+
+    const prefixPatern = regexPrefixPatern(prefixs);
+    if(message.match(prefixPatern)) {
+        delegateMessage(message);
     } else {
         // Not a prefixed instruction:
     }
@@ -34,18 +40,30 @@ function instruction(message: string) {
 }
 
 function setter(message: string) {
-    const hasDuplicate = (): boolean => setters.indexOf(message) === -1;
+    let setters = settings.get();
     
-    const setters = settings.get();
-    if (hasDuplicate()) {
-        const newSetters = settings.add(setters, message);
-        console.log(newSetters);
-        try {
-            connection.sendSerialArray(newSetters); 
-        } catch(e) {
-            console.log("Oh NO");
-        }
+    if (setters.indexOf(message) === -1) {
+        setters = settings.add(setters, message);
     }
+
+    // Always send setters on setter message, else there is a change of node and embedded holding different values;
+    try {
+        connection.sendSerialArray(setters); 
+    } catch(e) {
+        console.error("Could not send serial array.");
+        console.error(e);
+    }
+}
+
+function confirmation(message: string) {
+    const identifier = message.charAt(1);
+    if (identifier == 's') {
+        const confirmedMessage = message.substring(1, message.length);
+    }
+}
+
+function rejection(message: string) {
+
 }
 
 // on first setter after init
@@ -61,6 +79,7 @@ function serialMessage(message: string) {
 
 function serialOpen(message: string) {
     const setters = settings.get();
+    // Initial message of available setters:
     connection.sendSerialArray(setters);
 }
 

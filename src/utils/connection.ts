@@ -5,16 +5,16 @@ import express from "express";
 
 import { readySerial } from "./serial";
 
-type SerialEvent = "open" | "message" | "confirmation";
+type SerialEvent = "open" | "message" | "confirmation" | "rejection";
 type WebSocketEvent = "open" | "message";
 
 type ConnectionFunction = (message?: string) => void;
 
 export class ConnectionController {
-
     private onSerialOpenArray: ConnectionFunction[] = [];
     private onSerialMessageArray: ConnectionFunction[] = [];
     private onSerialConfirmationArray: ConnectionFunction[] = [];
+    private onSerialRejectionArray: ConnectionFunction[] = [];
     private onWebSocketOpenArray: ConnectionFunction[] = [];
     private onWebSocketMessageArray: ConnectionFunction[] = [];
 
@@ -65,10 +65,20 @@ export class ConnectionController {
     }
 
     private onSerialData = (message: string) => {
-        const regex = /(c(i|s|g|f))(?:$|\W)/g;
+        const regex = /((c|r)(i|s|g|f)[a-z]*)/g;
         if (message.toString().match(regex)) {
-            // On confirmation message:
-            this.callEventArray(this.onSerialConfirmationArray, message.toString());
+            const identifier = message.charAt(0);
+            switch (identifier) {
+                case "c": 
+                    console.log("Confirm: " + message);
+                    this.callEventArray(this.onSerialConfirmationArray, message.toString());
+                    break;
+                case "r": 
+                    console.log("Reject: " + message);
+                    this.callEventArray(this.onSerialRejectionArray, message.toString());
+                    break;
+            }
+
             this.shiftSerialQueue();
             return;
         }
@@ -121,6 +131,7 @@ export class ConnectionController {
             case "open":    this.onSerialOpenArray.push(listener); break;
             case "message": this.onSerialMessageArray.push(listener); break;
             case "confirmation": this.onSerialConfirmationArray.push(listener); break;
+            case "rejection": this.onSerialRejectionArray.push(listener); break;
         }
     }
 
@@ -143,6 +154,7 @@ export class ConnectionController {
             case "open":         this.removeItem(this.onSerialOpenArray, listener); break;
             case "message":      this.removeItem(this.onSerialMessageArray, listener); break;
             case "confirmation": this.removeItem(this.onSerialConfirmationArray, listener); break
+            case "rejection": this.removeItem(this.onSerialRejectionArray, listener); break
         }
     }
 
